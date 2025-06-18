@@ -9,7 +9,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddRazorPages();
 builder.Services.AddMudServices();
+builder.Services.AddServerSideBlazor();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(O =>
+    {
+        O.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+        O.JsonSerializerOptions.PropertyNamingPolicy = null;
+    });
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 

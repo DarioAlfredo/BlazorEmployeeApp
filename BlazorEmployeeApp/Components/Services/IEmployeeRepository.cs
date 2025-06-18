@@ -14,10 +14,11 @@ namespace BlazorEmployeeApp.Components.Services
          * DeleteEmployeeAsync: Deletes an employee by ID.
          */
         Task<IEnumerable<EmployeeDto>> GetEmployeesAsync();
-        
+
         /*Task<EmployeeDto> GetEmployeeByIdAsync(int employeeId);
         Task AddEmployeeAsync(EmployeeDto employee);
-        Task UpdateEmployeeAsync(EmployeeDto employee);
         Task DeleteEmployeeAsync(int employeeId);*/
+        Task<IEnumerable<EmployeeDto>> SaveOrUpdate(EmployeeDto employee);
+        
     }
 }

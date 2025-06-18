@@ -7,6 +7,6 @@ namespace BlazorEmployeeApp.Components.Services
     public interface IEmployeeService
     {
         Task<IEnumerable<EmployeeDto>> GetEmployeesAsync();
-        // Add other service method signatures as needed
+        Task<IEnumerable<EmployeeDto>> SaveOrUpdate(EmployeeDto employee);
     }
 }

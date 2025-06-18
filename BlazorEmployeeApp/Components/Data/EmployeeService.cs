@@ -16,6 +16,9 @@ namespace BlazorEmployeeApp.Components.Data
             return await _employeeRepository.GetEmployeesAsync();
         }
 
-        // Implement other methods by delegating to _employeeRepository as needed
+        public async Task<IEnumerable<EmployeeDto>> SaveOrUpdate(EmployeeDto employee)
+        {
+            return await _employeeRepository.SaveOrUpdate(employee);
+        }
     }
 }

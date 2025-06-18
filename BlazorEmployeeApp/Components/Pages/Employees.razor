@@ -1,27 +1,117 @@
 ﻿@page "/employees"
+@using BlazorEmployeeApp.Components.Data
+@inject MudBlazor.ISnackbar Snackbar
 @inject IEmployeeService EmployeeService
 
+<MudTextField @bind-Value="Employee.FirstName"
+    Placeholder="First name"
+    Label="First Name" />
+
+<MudTextField @bind-Value="Employee.LastName"
+    Placeholder="Last name"
+    Label="Last Name" />
+
+<MudTextField @bind-Value="Employee.DOB"
+    Placeholder="Date of Birth"
+    Label="Date of Birth"
+    Type="MudBlazor.InputType.Date" />
+
+<MudTextField @bind-Value="Employee.EmployeeTitleID"
+              Placeholder="Title"
+              Label="Title" />
+
+<MudSwitch @bind-Checked="Employee.IsActive"
+    Color="Color.Primary"
+    T="bool">Is Active</MudSwitch>
+
+<MudButton Variant="Variant.Filled" Color="Color.Success" @onclick="SaveEmployee" Disabled="@IsSaving">Save</MudButton>
+
 <h3>Employees</h3>
-<MudTable Items="employees">
+<MudTable Items="employees" Dense="@dense" Hover="@hover" Filter="new Func<EmployeeDto,bool>(FilterFunc)" @bind-Employee="Employee">
+    
     <HeaderContent>
+        <MudTh>Employee ID</MudTh>
         <MudTh>First Name</MudTh>
         <MudTh>Last Name</MudTh>
+        <MudTh>DOB</MudTh>
         <MudTh>Title</MudTh>
         <MudTh>Active</MudTh>
     </HeaderContent>
     <RowTemplate>
+        <MudTd DataLabel="EmployeeID">@context.EmployeeID</MudTd>
         <MudTd DataLabel="First Name">@context.FirstName</MudTd>
         <MudTd DataLabel="Last Name">@context.LastName</MudTd>
-        <MudTd DataLabel="Title">@context.EmployeeTitleID</MudTd>
+        <MudTd DataLabel="DOB">@context.DOB.ToString("d")</MudTd>
+        <MudTd DataLabel="Title">@context.EmployeeTitle</MudTd>
         <MudTd DataLabel="Active">@context.IsActive</MudTd>
+        <MudTd DataLabel="">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small">Edit</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Error" Size="Size.Small">Delete</MudButton>
+         </MudTd>
     </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
 </MudTable>
+<MudSwitch @bind-Checked="hover" Color="Color.Secondary" @onclick="ToggleHover" T="bool">Hover</MudSwitch>
+<MudSwitch @bind-Checked="dense" Color="Color.Primary" @onclick="ToggleDense" T="bool">Dense</MudSwitch>
+<MudText Inline="true" Class="ml-2">Selected: @Employee?.FirstName</MudText>
 
 @code {
+    private bool IsSaving = false;
+    private bool dense = false;
+    private bool hover = true;
+    private string searchString = string.Empty;
+
+    //fix
+    private EmployeeDto Employee = new EmployeeDto();
+
     private IEnumerable<EmployeeDto> employees = Enumerable.Empty<EmployeeDto>();
 
     protected override async Task OnInitializedAsync()
     {
         employees = await EmployeeService.GetEmployeesAsync();
+    }
+
+    protected async Task SaveEmployee()
+    {
+        IsSaving = true;
+        try
+        {
+            await EmployeeService.SaveOrUpdate(Employee);
+            Snackbar.Add("Employee saved successfully.", MudBlazor.Severity.Success);
+            Employee = new EmployeeDto();
+            employees = await EmployeeService.GetEmployeesAsync();
+        } 
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Save failed: {ex.Message}", MudBlazor.Severity.Error);
+        }
+        finally
+        {
+            IsSaving = false;
+        }
+    }
+
+    private void ToggleDense()
+    {
+        Snackbar.Add("Toggle Dense.", MudBlazor.Severity.Success);
+        dense = !dense;
+    }
+
+    private void ToggleHover()
+    {
+        Snackbar.Add("ToggleHover.", MudBlazor.Severity.Success);
+        hover = !hover;
+    }
+
+    private bool FilterFunc(EmployeeDto employee)
+    {
+        if (string.IsNullOrEmpty(searchString)) return true;
+        if (employee.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+        if (employee.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+        if (employee.DOB.ToString("d").Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+
+        return false;
     }
 }
